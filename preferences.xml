@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<preferences>
+  <name>Alice</name>
+  <presence-enabled>0</presence-enabled>
+  <video-enabled>1</video-enabled>
+  <session-im-enabled>1</session-im-enabled>
+  <impu>sip:alice@open-ims.test</impu>
+  <impi>alice@open-ims.test</impi>
+  <pcscf>pcscf.open-ims.test</pcscf>
+  <realm>open-ims.test</realm>
+  <password>alice</password>
+  <qos-strength>0</qos-strength>
+  <qos-type>0</qos-type>
+  <access-network>0</access-network>
+  <audio-codec-primary>0</audio-codec-primary>
+  <audio-codec-secondary>1</audio-codec-secondary>
+  <dtmf>0</dtmf>
+  <media-interface>0</media-interface>
+  <video-bw>0</video-bw>
+  <iptv-server>audio.so</iptv-server>
+  <iptv-hw-acceleration>1</iptv-hw-acceleration>
+  <xdms-root-url>http://xcap.example.com/xcap-root</xdms-root-url>
+  <xdms-username>alice</xdms-username>
+  <xdms-password>alice</xdms-password>
+</preferences>
