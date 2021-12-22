@@ -4,13 +4,12 @@
 
 
 CC = gcc
-# LIBS = -L/usr/local/lib -leXosip2 -lxml2 -lcurl -lgstinterfaces-0.10
-LIBS = -L/usr/local/lib -leXosip2 -losip2 -losipparser2 -lgstinterfaces-0.10
+LIBS = -L/usr/local/lib -leXosip2 -losip2 -losipparser2 -lgstreamer-1.0 -lgstvideo-1.0
 
 INCLUDES = -I/usr/include/libxml2
 GTK_LIB_FLAGS = `pkg-config gtk+-3.0 libglade-2.0 --cflags --libs`
 
-GTK_INC_FLAGS = `pkg-config --cflags gtk+-3.0 gstreamer-0.10`
+GTK_INC_FLAGS = `pkg-config --cflags gtk+-3.0 gstreamer-1.0`
 
 ODIR=obj
 

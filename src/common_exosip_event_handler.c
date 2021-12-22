@@ -23,7 +23,7 @@
 #include "includes.h"
 #include "common_exosip_event_handler.h"
 
-#include <gst/controller/gstcontroller.h>
+#include <gst/gstobject.h>
 
 
 GList *call_list = NULL;

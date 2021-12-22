@@ -26,7 +26,7 @@
 
 #include <gst/gst.h>
 #include <gdk/gdkx.h>
-#include <gst/interfaces/xoverlay.h>
+#include <gst/video/videooverlay.h>
 
 #include <time.h>
 
