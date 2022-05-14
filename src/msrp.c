@@ -1,6 +1,33 @@
 #include "msrp.h"
 #include "msrp_utils.h"
 
+int msrp_exists = 0;
+/*
+        Local identifier counter
+*/
+unsigned long int counter = 0;
+pthread_mutex_t counter_lock;
+
+
+/*
+        Linkeds list management
+*/
+struct msrp_session *sessions = NULL;    /* The sessions linked list */
+pthread_mutex_t sessions_lock;           /* A lock to access the list */
+
+struct msrp_context *contexts = NULL;    /* The contexts linked list */
+pthread_mutex_t contexts_lock;           /* A lock to access the list */
+
+struct msrp_relay *relays = NULL;        /* The relays linked list */
+pthread_mutex_t relays_lock;             /* A lock to access the list */
+
+struct msrp_conference *switches = NULL; /* The switches (conference rooms) linked list */
+pthread_mutex_t switches_lock;           /* A lock to access the list */
+
+void(*ep_callback)(int event, MsrpEndpoint *endpoint, int content, void *data, int bytes);
+void(*sw_callback)(int event, MsrpSwitch *switcher, unsigned short int user, void *data, int bytes);
+void(*rl_callback)(MsrpRelay *relay);
+void(*events)(int event, void *info);
 
 /*
 	Initialize the library

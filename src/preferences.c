@@ -554,9 +554,9 @@ int preferences_set_default_preferences(Preferences *pref)
 	strcpy(pref->xdms_username, "alice@open-ims.test");
 	strcpy(pref->xdms_password, "alice");	
 
-	eXosip_guess_localip (AF_INET, pref->local_audio_ip, 128);
-	eXosip_guess_localip (AF_INET, pref->local_video_ip, 128); 
-	eXosip_guess_localip (AF_INET, pref->local_msrp_ip, 128); 
+	eXosip_guess_localip (context_eXosip, AF_INET, pref->local_audio_ip, 128);
+	eXosip_guess_localip (context_eXosip, AF_INET, pref->local_video_ip, 128); 
+	eXosip_guess_localip (context_eXosip, AF_INET, pref->local_msrp_ip, 128); 
 
 	/* Generate random media port numbers so many clients can run on the same machine */
 	time_t seconds;

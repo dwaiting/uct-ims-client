@@ -256,8 +256,8 @@ void common_process_info(eXosip_event_t *je)
 
 	/* send 200ok */
 	osip_message_t *answer;
-	eXosip_call_build_answer(je->tid, 200, &answer);
-	eXosip_call_send_answer(je->tid, 200, answer);
+	eXosip_call_build_answer(context_eXosip, je->tid, 200, &answer);
+	eXosip_call_send_answer(context_eXosip, je->tid, 200, answer);
 	
 
 	osip_content_type_t *content_type;

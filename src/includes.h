@@ -242,7 +242,7 @@ typedef unsigned char u8;
 #define GLADE_HOOKUP_OBJECT_NO_REF(component,widget,name) \
   g_object_set_data (G_OBJECT (component), name, widget)
 
-
+extern struct eXosip_t *context_eXosip;
 
 #include "extern_vars.h"
 #include "preferences.h"

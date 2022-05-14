@@ -84,9 +84,9 @@ void terminate_call()
 		}
 
 	
-		eXosip_lock ();
-		eXosip_call_terminate(ca->cid, ca->did);
-		eXosip_unlock ();
+		eXosip_lock (context_eXosip);
+		eXosip_call_terminate(context_eXosip, ca->cid, ca->did);
+		eXosip_unlock (context_eXosip);
 
 		if (state == LOCAL_RINGING)
 			imsua_set_message_display("603 Decline (Invite)", 1);
@@ -124,9 +124,9 @@ void reject_call()
 
 		ca->call_is_active = 0;
 		
-		eXosip_lock();
-		eXosip_call_terminate(ca->cid, ca->did);
-		eXosip_unlock();
+		eXosip_lock(context_eXosip);
+		eXosip_call_terminate(context_eXosip, ca->cid, ca->did);
+		eXosip_unlock(context_eXosip);
 
 		set_display("Call rejected");
 
@@ -218,9 +218,9 @@ void common_send_dtmf(int val)
 	osip_message_t *request;
 	int r;
 
-	eXosip_lock();
-	r = eXosip_call_build_info(ca->did, &request);
-	eXosip_unlock();
+	eXosip_lock(context_eXosip);
+	r = eXosip_call_build_info(context_eXosip, ca->did, &request);
+	eXosip_unlock(context_eXosip);
 
 	if (r < 0)
 		return ;

@@ -70,24 +70,24 @@ void presence_publish_presentity(char *basic, char *note)
 
 	sprintf(presence_expire_str, "%d", PRESENCE_EXPIRE);
 
-	eXosip_lock();
-	if(eXosip_build_publish(&publish, pref->impu, pref->impu, imsua_add_lr_to_route(add_sip_scheme(pref->pcscf)), "presence", presence_expire_str, "application/pidf+xml", xmlbody))
+	eXosip_lock(context_eXosip);
+	if(eXosip_build_publish(context_eXosip, &publish, pref->impu, pref->impu, imsua_add_lr_to_route(add_sip_scheme(pref->pcscf)), "presence", presence_expire_str, "application/pidf+xml", xmlbody))
 	{
 		fprintf(stderr, "Error building publish\n");
-		eXosip_unlock();
+		eXosip_unlock(context_eXosip);
 		return ;
 	}
-	eXosip_unlock();
+	eXosip_unlock(context_eXosip);
 
 	imsua_add_service_routes(&publish);
 
-	eXosip_lock();
-	if(eXosip_publish(publish, "NULL"))
+	eXosip_lock(context_eXosip);
+	if(eXosip_publish(context_eXosip, publish, "NULL"))
 		set_display("Error publishing presence\n");
 	else
 		imsua_set_message_display("PUBLISH (presence)", 1);
 
-	eXosip_unlock();
+	eXosip_unlock(context_eXosip);
 
 }
 
@@ -279,15 +279,15 @@ void presence_subscribe_to_presentity(char *buddy, int expires)
 	{
 		printf("Refreshing presence subscription for buddy: %s DID: %d\n", current->buddy, current->subscription_did);
 
-		eXosip_lock();
+		eXosip_lock(context_eXosip);
 
-		if(eXosip_subscribe_build_refresh_request(current->subscription_did, &refresh) < 0)
+		if(eXosip_subscribe_build_refresh_request(context_eXosip, current->subscription_did, &refresh) < 0)
 		{
 			fprintf(stderr, "Error building subscription refresh\n");
-			eXosip_unlock();
+			eXosip_unlock(context_eXosip);
 			return ;
 		}
-		eXosip_unlock();
+		eXosip_unlock(context_eXosip);
 
 		osip_message_set_header(refresh, "Event", "presence");
 
@@ -295,31 +295,31 @@ void presence_subscribe_to_presentity(char *buddy, int expires)
 		sprintf(expire_str, "%d", PRESENCE_EXPIRE); 
 		osip_message_set_expires(refresh, expire_str);
 		
-		eXosip_lock();
-		if((i = eXosip_subscribe_send_refresh_request(current->subscription_did, refresh)) < 0)
+		eXosip_lock(context_eXosip);
+		if((i = eXosip_subscribe_send_refresh_request(context_eXosip, current->subscription_did, refresh)) < 0)
 		{
 			fprintf(stderr, "Error sending subscription refresh\n");
-			eXosip_unlock();
+			eXosip_unlock(context_eXosip);
 			return ;
 		}
 
-		eXosip_unlock();
+		eXosip_unlock(context_eXosip);
 	}
 	else
 	{
 
-		if(eXosip_subscribe_build_initial_request (&subscribe, buddy, pref->impu, imsua_add_lr_to_route(add_sip_scheme(pref->pcscf)), "presence", expires))
+		if(eXosip_subscribe_build_initial_request (context_eXosip, &subscribe, buddy, pref->impu, imsua_add_lr_to_route(add_sip_scheme(pref->pcscf)), "presence", expires))
 		{
 			fprintf(stderr, "UCTIMSCLIENT: Error building presence subscribe message. Probably an invalid URI.\n");
-			eXosip_unlock();
+			eXosip_unlock(context_eXosip);
 			return ;
 		}
 
 		imsua_add_service_routes(&subscribe);
 
-		eXosip_lock();
-		i = eXosip_subscribe_send_initial_request(subscribe);	
-		eXosip_unlock();
+		eXosip_lock(context_eXosip);
+		i = eXosip_subscribe_send_initial_request(context_eXosip, subscribe);	
+		eXosip_unlock(context_eXosip);
 	}
 
 

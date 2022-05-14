@@ -22,7 +22,7 @@
 #include "msrp_network.h"
 
 
-int msrp_exists;
+extern int msrp_exists;
 
 
 /*
@@ -35,25 +35,25 @@ char *random_string(char *buf, size_t size);
 /*
 	Local identifier counter
 */
-unsigned long int counter;
-pthread_mutex_t counter_lock;
+extern unsigned long int counter;
+extern pthread_mutex_t counter_lock;
 unsigned long int msrp_new_identifier(void);
 
 
 /*
 	Linkeds list management
 */
-struct msrp_session *sessions;		/* The sessions linked list */
-pthread_mutex_t sessions_lock;		/* A lock to access the list */
+extern struct msrp_session *sessions;		/* The sessions linked list */
+extern pthread_mutex_t sessions_lock;		/* A lock to access the list */
 
-struct msrp_context *contexts;		/* The contexts linked list */
-pthread_mutex_t contexts_lock;		/* A lock to access the list */
+extern struct msrp_context *contexts;		/* The contexts linked list */
+extern pthread_mutex_t contexts_lock;		/* A lock to access the list */
 
-struct msrp_relay *relays;		/* The relays linked list */
-pthread_mutex_t relays_lock;		/* A lock to access the list */
+extern struct msrp_relay *relays;		/* The relays linked list */
+extern pthread_mutex_t relays_lock;		/* A lock to access the list */
 
-struct msrp_conference *switches;	/* The switches (conference rooms) linked list */
-pthread_mutex_t switches_lock;		/* A lock to access the list */
+extern struct msrp_conference *switches;	/* The switches (conference rooms) linked list */
+extern pthread_mutex_t switches_lock;		/* A lock to access the list */
 
 
 /*
