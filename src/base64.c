@@ -222,7 +222,7 @@ char * base64_encode_string2( const char *buf, unsigned int len, int *newlen )
 			*ptr='=';ptr++;
 			break;
 	}
-	fprintf(stderr,"base64=%.*s >> %d\n",ptr-out,out,ptr-out);
+	fprintf(stderr,"base64=%.*s >> %d\n",(int)(ptr-out),out,(int)(ptr-out));
     //*ptr = 0;					
 	*newlen = ptr-out;
 	return out;

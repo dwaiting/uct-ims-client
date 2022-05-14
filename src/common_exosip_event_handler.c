@@ -206,7 +206,7 @@ void call_released(eXosip_event_t *je)
 
 		destroyBackgroundVideoPipeline();
 
-		destroyIptvVideoPipeline();
+		destroyIptvVideoPipeline(ca);
 
 		/*destroy rtsp session if exists*/
 //		if(vod_window_open == 1)

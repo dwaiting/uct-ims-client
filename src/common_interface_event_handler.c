@@ -45,7 +45,7 @@ void terminate_call()
 
 		destroyBackgroundVideoPipeline();
 
-		destroyIptvVideoPipeline();
+		destroyIptvVideoPipeline(ca);
 	
 		/*destroy rtsp session if exists*/
 	//	if(vod_window_open == 1)

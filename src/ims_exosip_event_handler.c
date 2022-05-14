@@ -993,7 +993,7 @@ void ims_process_released_call(eXosip_event_t *je)
 
 		destroyBackgroundVideoPipeline();
 
-		destroyIptvVideoPipeline();
+		destroyIptvVideoPipeline(ca);
 
 		if (ca->im_supported)
 		{
@@ -1781,7 +1781,7 @@ void ims_process_notify(eXosip_event_t *je)
 		osip_message_get_body(je->request, 0, &notify_body);
 
 		char *notify_str = NULL;
-		int reg_len;
+		size_t reg_len;
 
 		osip_body_to_str(notify_body, &notify_str, &reg_len);
 
@@ -1887,7 +1887,7 @@ void ims_process_302 (eXosip_event_t *je)
         uri_entry = (char*)malloc(sizeof(contact));
 
 	sprintf(uri_entry,"%s",contact);
-	char from_string[50];
+	char from_string[200];
 
 	// create from header with name and public UI
 	sprintf(from_string, "\"%s\" <%s>", pref->name, pref->impu);

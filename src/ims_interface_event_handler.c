@@ -47,7 +47,7 @@ int ims_call_initiate(char *uri_entry, int session_type)
 
 	char display[500];
 	// const gchar *uri_entry;
-	char from_string[50];
+	char from_string[200];
 
 	// get URI from address bar
 	// uri_entry = gtk_entry_get_text(GTK_ENTRY(client->uri_entry));
@@ -62,7 +62,7 @@ int ims_call_initiate(char *uri_entry, int session_type)
 	if (!strcmp(uri_entry, pref->impu))
 	{
 		set_display("Not allowed to call yourself");
-		return ;
+		return -1;
 	}
 
 	/* 
@@ -71,7 +71,7 @@ int ims_call_initiate(char *uri_entry, int session_type)
 	if (osip_route_parse(route, add_sip_scheme(pref->pcscf)) < 0)
 	{
 		set_display("Invalid P-CSCF\n\nCorrect usage:\n  sip:pcscf.open-ims.test");
-		return ;
+		return -1;
 	}
 
 	/* 
@@ -80,17 +80,17 @@ int ims_call_initiate(char *uri_entry, int session_type)
 	if (strlen(pref->impu) < 6)
 	{
 		set_display("Invalid Public User Identity\n\nCheck Preferences");
-		return ;
+		return -1;
 	}
 	else if((strstr(pref->impu, sip_str) != pref->impu) && (strstr(pref->impu, sip_strs) != pref->impu))
 	{
 		set_display("Invalid Public User Identity\n\nCorrect usage sip:user@address.com");
-		return ;
+		return -1;
 	}
 	else if (eXosip_call_build_initial_invite (context_eXosip, &invite, uri_entry, from_string, add_lr_to_route(add_sip_scheme(pref->pcscf)), "IMS Call"))
 	{
 		set_display("Invalid Destination URI or PCSCF\n\nCheck both start with \"sip:\"");
-		return ;
+		return -1;
 	}
 
 	/* 

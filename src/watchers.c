@@ -122,7 +122,7 @@ void watchers_process_notify(eXosip_event_t *je)
 
 	char *notify_str, *entity;
 	osip_body_t *notify_body;
-	int notify_len;
+	size_t notify_len;
 	xmlChar *txt;
    	xmlDocPtr doc;
 	xmlNodePtr cur;
