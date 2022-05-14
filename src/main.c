@@ -43,7 +43,6 @@ struct eXosip_t *context_eXosip = NULL;
 int initialise_eXosip(Preferences *pref)
 {
 	int port = 5060;
-	context_eXosip = eXosip_malloc ();
 	int i = eXosip_init(context_eXosip);
 
 	if (i != 0)  {
@@ -393,6 +392,9 @@ int main( int argc, char *argv[] )
 
 	/* Initialize GStreaemer */
 	gst_init(NULL, NULL);
+
+	/* Initialize eXosip */
+	context_eXosip = eXosip_malloc ();
 
 	// ClientUI *client;
 

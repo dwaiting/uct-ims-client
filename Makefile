@@ -3,7 +3,7 @@
 #Compiler: gcc 4.0.3
 
 
-CC = gcc
+CC = gcc -g
 LIBS = -L/usr/local/lib -leXosip2 -losip2 -losipparser2 -lgstreamer-1.0 -lgstvideo-1.0
 
 INCLUDES = -I/usr/include/libxml2
