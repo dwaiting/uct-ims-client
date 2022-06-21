@@ -8,9 +8,9 @@ extern int mode;
 extern int state;
 extern int current_dialog_id;
 
-char presentity[100];
+extern char presentity[100];
 
-ClientUI *client;
+extern ClientUI *client;
 
 extern char *ims_service_route[50];
 extern int num_service_routes;
@@ -36,14 +36,14 @@ extern struct timeval end_time;
 
 extern char display[500];
 
-GList *buddy_list;
-GList *watcher_list;
+extern GList *buddy_list;
+extern GList *watcher_list;
 
-int winfo_subscription_did;
+extern int winfo_subscription_did;
 
-GstElement *backgroundVideoPipeline;
+extern GstElement *backgroundVideoPipeline;
 
-char *access_networks[6];
+extern char *access_networks[6];
 
 extern int num_im_tabs;
 
@@ -75,7 +75,7 @@ extern GtkWindow *vod_window;
 
 //msrp var
 extern MsrpEndpoint *local_msrp_endpoint;
-int msrp_destroyed;
+extern int msrp_destroyed;
 
 // Preferences *pref;
 

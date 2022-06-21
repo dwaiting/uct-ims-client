@@ -79,17 +79,17 @@ enum {
 
     osip_message_t *subscribe;
 
-    if(eXosip_subscribe_build_initial_request (&subscribe, pref->impu, pref->impu, imsua_add_lr_to_route(add_sip_scheme(pref->pcscf)), "iptv.guide", 60000)) {
+    if(eXosip_subscribe_build_initial_request (context_eXosip, &subscribe, pref->impu, pref->impu, imsua_add_lr_to_route(add_sip_scheme(pref->pcscf)), "iptv.guide", 60000)) {
             fprintf(stderr, "UCTIMSCLIENT: Error building presence.winfo subscribe message. Probably an invalid URI.\n");
-            eXosip_unlock();
+            eXosip_unlock(context_eXosip);
             return ;
     }
 
     imsua_add_service_routes(&subscribe);
 
-    eXosip_lock();
-    int i = eXosip_subscribe_send_initial_request(subscribe);
-    eXosip_unlock();
+    eXosip_lock(context_eXosip);
+    int i = eXosip_subscribe_send_initial_request(context_eXosip, subscribe);
+    eXosip_unlock(context_eXosip);
     if(i < 0)
     fprintf(stderr, "UCTIMSCLIENT: Warning could not subscribe to content guide. VoD and TV listings may be out of date.\n");
 }*/

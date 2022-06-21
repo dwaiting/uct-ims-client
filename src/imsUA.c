@@ -49,8 +49,8 @@ gint get_exosip_events(gpointer main_window)
 {
 	eXosip_event_t *je;
 	char display[500] = "";
- 	eXosip_lock();
-	eXosip_unlock();
+ 	eXosip_lock(context_eXosip);
+	eXosip_unlock(context_eXosip);
 
 	/* Check for eXosip event - timeout after 50ms */
 	if((je = eXosip_event_wait(0,50)) != NULL)

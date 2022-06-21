@@ -36,20 +36,21 @@ typedef struct
 } ClientUI;
 */
 
+struct eXosip_t *context_eXosip = NULL;
 
 
 
 int initialise_eXosip(Preferences *pref)
 {
 	int port = 5060;
-	int i = eXosip_init();
+	int i = eXosip_init(context_eXosip);
 
 	if (i != 0)  {
 		fprintf(stderr, "Could not start eXosip\n");
 		return -1;
 	}
 
-	while(eXosip_listen_addr (IPPROTO_UDP, NULL, port, AF_INET, 0) != 0)
+	while(eXosip_listen_addr (context_eXosip, IPPROTO_UDP, NULL, port, AF_INET, 0) != 0)
 	{
 		port++;
 	}
@@ -64,14 +65,14 @@ gint get_exosip_events()
 {
 	eXosip_event_t *je;
 	char display[500] = "";
- 	eXosip_lock();
-	eXosip_unlock();
+ 	eXosip_lock(context_eXosip);
+	eXosip_unlock(context_eXosip);
 
 	Preferences *pref = client->pref;
 	// printf("Timeout!\n");
 
 	/* Check for eXosip event - timeout after 50ms */
-	if((je = eXosip_event_wait(0,50)) != NULL)
+	if((je = eXosip_event_wait(context_eXosip, 0,50)) != NULL)
 	{
 		/* Uncomment the next line for debugging */
 		 fprintf(stderr, "Event type: %d %s\n", je->type, je->textinfo);
@@ -234,7 +235,7 @@ gint get_exosip_events()
 			}
 
 		}
-		else if(je->type == EXOSIP_REGISTRATION_REFRESHED)
+/*		else if(je->type == EXOSIP_REGISTRATION_REFRESHED)
 		{
 			set_display("Registration Refreshed");
 			registered = REGISTERED;
@@ -242,7 +243,7 @@ gint get_exosip_events()
 		else if(je->type == EXOSIP_REGISTRATION_TERMINATED)
 		{
 		}
-		else if(je->type == EXOSIP_SUBSCRIPTION_ANSWERED)
+*/		else if(je->type == EXOSIP_SUBSCRIPTION_ANSWERED)
 		{
 			ims_process_subscription_answered(je);
 		}
@@ -365,7 +366,7 @@ gboolean shutdown_ui(GtkWidget *widget, GdkEvent *event, gpointer userdata)
 
 		eXosip_event_t *je;
 
-		while((je = eXosip_event_wait(0,50)) != NULL)
+		while((je = eXosip_event_wait(context_eXosip, 0,50)) != NULL)
 		{
 			if((je->type == EXOSIP_REGISTRATION_FAILURE) && ((je->response)->status_code == 401))
 				ims_process_401(je);
@@ -375,7 +376,7 @@ gboolean shutdown_ui(GtkWidget *widget, GdkEvent *event, gpointer userdata)
 
 	gtk_main_quit();
 	msrp_quit();
-	eXosip_quit();
+	eXosip_quit(context_eXosip);
 
 	/* Stop other signal handlers from being evoked for this event */
 	return TRUE;
@@ -391,6 +392,9 @@ int main( int argc, char *argv[] )
 
 	/* Initialize GStreaemer */
 	gst_init(NULL, NULL);
+
+	/* Initialize eXosip */
+	context_eXosip = eXosip_malloc ();
 
 	// ClientUI *client;
 
@@ -427,7 +431,7 @@ int main( int argc, char *argv[] )
 	else
 	{
 		imsua_set_message_display("UCT IMS Client Initialised", 1);
-		eXosip_set_user_agent("UCT IMS Client");
+		eXosip_set_user_agent(context_eXosip, "UCT IMS Client");
 		g_timeout_add (200, (GSourceFunc)get_exosip_events, NULL);
 		// g_timeout_add (200, (GSourceFunc)tester, NULL);
 

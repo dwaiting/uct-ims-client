@@ -1,0 +1,5 @@
+/uctimsclient
+/obj/**
+!/obj/.placeholder
+/nodeid
+/state

@@ -1,5 +1,10 @@
 #include "msrp_network.h"
 
+pthread_t recv_thread;		/* The receiving thread */
+pthread_mutex_t recv_lock;	/* A lock to access the file descriptors */
+fd_set recv_fds;		/* File descriptors set for reading */
+int recv_fdmax;			/* Highest file descriptor */
+int recv_pair[2];		/* A socket pair to unblock select, when needed */
 
 /*
 	Receiving thread

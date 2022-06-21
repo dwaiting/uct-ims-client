@@ -47,7 +47,7 @@ int ims_call_initiate(char *uri_entry, int session_type)
 
 	char display[500];
 	// const gchar *uri_entry;
-	char from_string[50];
+	char from_string[200];
 
 	// get URI from address bar
 	// uri_entry = gtk_entry_get_text(GTK_ENTRY(client->uri_entry));
@@ -62,7 +62,7 @@ int ims_call_initiate(char *uri_entry, int session_type)
 	if (!strcmp(uri_entry, pref->impu))
 	{
 		set_display("Not allowed to call yourself");
-		return ;
+		return -1;
 	}
 
 	/* 
@@ -71,7 +71,7 @@ int ims_call_initiate(char *uri_entry, int session_type)
 	if (osip_route_parse(route, add_sip_scheme(pref->pcscf)) < 0)
 	{
 		set_display("Invalid P-CSCF\n\nCorrect usage:\n  sip:pcscf.open-ims.test");
-		return ;
+		return -1;
 	}
 
 	/* 
@@ -80,17 +80,17 @@ int ims_call_initiate(char *uri_entry, int session_type)
 	if (strlen(pref->impu) < 6)
 	{
 		set_display("Invalid Public User Identity\n\nCheck Preferences");
-		return ;
+		return -1;
 	}
 	else if((strstr(pref->impu, sip_str) != pref->impu) && (strstr(pref->impu, sip_strs) != pref->impu))
 	{
 		set_display("Invalid Public User Identity\n\nCorrect usage sip:user@address.com");
-		return ;
+		return -1;
 	}
-	else if (eXosip_call_build_initial_invite (&invite, uri_entry, from_string, add_lr_to_route(add_sip_scheme(pref->pcscf)), "IMS Call"))
+	else if (eXosip_call_build_initial_invite (context_eXosip, &invite, uri_entry, from_string, add_lr_to_route(add_sip_scheme(pref->pcscf)), "IMS Call"))
 	{
 		set_display("Invalid Destination URI or PCSCF\n\nCheck both start with \"sip:\"");
-		return ;
+		return -1;
 	}
 
 	/* 
@@ -152,9 +152,9 @@ int ims_call_initiate(char *uri_entry, int session_type)
 	sdp_complete_ims(NULL, &invite, NULL, session_type);
 
 	// send the invite
-	eXosip_lock ();
-	int i = eXosip_call_send_initial_invite (invite);
-	eXosip_unlock ();
+	eXosip_lock (context_eXosip);
+	int i = eXosip_call_send_initial_invite (context_eXosip, invite);
+	eXosip_unlock (context_eXosip);
 
 	/* 
 		Start timer for delay tests
@@ -396,9 +396,9 @@ void ims_send_instant_message_status (int status)
 	{
 		osip_uri_uparam_add(rt->url,osip_strdup("lr"),NULL);
 		osip_route_to_str(rt,&tmproute);
-		eXosip_lock ();
-		i = eXosip_message_build_request (&message, "MESSAGE", uri_entry, from_string, tmproute);
-		eXosip_unlock ();
+		eXosip_lock (context_eXosip);
+		i = eXosip_message_build_request (context_eXosip, &message, "MESSAGE", uri_entry, from_string, tmproute);
+		eXosip_unlock (context_eXosip);
 	
 		// add the service routes
 		int j;
@@ -420,9 +420,9 @@ void ims_send_instant_message_status (int status)
 			/*
 			if(strcmp(media_interface, "Default") == 0)
 			{
-				eXosip_lock ();
-				eXosip_guess_localip (AF_INET, local_ip, 128);
-				eXosip_unlock ();
+				eXosip_lock (context_eXosip);
+				eXosip_guess_localip (context_eXosip, AF_INET, local_ip, 128);
+				eXosip_unlock (context_eXosip);
 			}
 			else 
 			{
@@ -455,9 +455,9 @@ void ims_send_instant_message_status (int status)
 
 			}
 	
-			eXosip_lock ();
-			i = eXosip_message_send_request (message);
-			eXosip_unlock ();
+			eXosip_lock (context_eXosip);
+			i = eXosip_message_send_request (context_eXosip, message);
+			eXosip_unlock (context_eXosip);
 	
 	
 			if (i = 0)
@@ -625,9 +625,9 @@ void ims_send_instant_message ()
 	{
 		osip_uri_uparam_add(rt->url,osip_strdup("lr"),NULL);
 		osip_route_to_str(rt,&tmproute);
-		eXosip_lock ();
-		i = eXosip_message_build_request (&message, "MESSAGE", uri_entry, from_string, tmproute);
-		eXosip_unlock ();
+		eXosip_lock (context_eXosip);
+		i = eXosip_message_build_request (context_eXosip, &message, "MESSAGE", uri_entry, from_string, tmproute);
+		eXosip_unlock (context_eXosip);
 	
 		// add the service routes
 		int j;
@@ -651,9 +651,9 @@ void ims_send_instant_message ()
 			/*
 			if(strcmp(media_interface, "Default") == 0)
 			{
-				eXosip_lock ();
-				eXosip_guess_lolip (AF_INET, local_ip, 128);
-				eXosip_unlock ();
+				eXosip_lock (context_eXosip);
+				eXosip_guess_lolip (context_eXosip, AF_INET, local_ip, 128);
+				eXosip_unlock (context_eXosip);
 			}
 			else 
 			{
@@ -686,9 +686,9 @@ void ims_send_instant_message ()
 
 			}
 	
-			eXosip_lock ();
-			i = eXosip_message_send_request (message);
-			eXosip_unlock ();
+			eXosip_lock (context_eXosip);
+			i = eXosip_message_send_request (context_eXosip, message);
+			eXosip_unlock (context_eXosip);
 	
 	
 			if (i = 0)
@@ -804,10 +804,10 @@ gint ims_send_register()
 	Preferences *pref = client->pref;
 
 	is_message_deregister = 0;
- 	eXosip_lock();
-       	eXosip_automatic_action ();
-	eXosip_clear_authentication_info();
-	eXosip_unlock();
+ 	eXosip_lock(context_eXosip);
+       	eXosip_automatic_action (context_eXosip);
+	eXosip_clear_authentication_info(context_eXosip);
+	eXosip_unlock(context_eXosip);
 
 	/* Generate our UUID and GRUUU - this is appended to the contact header field later */
 	uuid_t u;
@@ -834,18 +834,18 @@ gint ims_send_register()
 	}
 
 	// build initial register message with the public ui and realm
-	eXosip_lock ();
+	eXosip_lock (context_eXosip);
 
 	if ((reg_id < 0) || (preferences_changed == 1))
 	{
 
-		reg_id = eXosip_register_build_initial_register(pref->impu,add_sip_scheme(pref->realm),NULL,REG_EXPIRE,&reg);
+		reg_id = eXosip_register_build_initial_register(context_eXosip, pref->impu,add_sip_scheme(pref->realm),NULL,REG_EXPIRE,&reg);
 
 		/* check to see that register was built correctly */
 		if (reg_id < 0)
 		{
 			set_display("Error building register message\n\nTry deregister then register");
-			eXosip_unlock ();
+			eXosip_unlock (context_eXosip);
 			return -1;
 		}
 
@@ -875,10 +875,10 @@ gint ims_send_register()
 	}
 	else
 	{
-		eXosip_register_build_register(reg_id, REG_EXPIRE, &reg);
+		eXosip_register_build_register(context_eXosip, reg_id, REG_EXPIRE, &reg);
 	}
 
-	eXosip_unlock ();
+	eXosip_unlock (context_eXosip);
 
 	/* create an authorisation header */
 	osip_authorization_t *auth_header;
@@ -903,14 +903,14 @@ gint ims_send_register()
 
 	
 	/* send register message */
-	eXosip_lock();
-	if (eXosip_register_send_register (reg_id, reg) != 0)	
+	eXosip_lock(context_eXosip);
+	if (eXosip_register_send_register (context_eXosip, reg_id, reg) != 0)	
 	{
 		set_display("Error sending registration");
-		eXosip_unlock ();
+		eXosip_unlock (context_eXosip);
 		return -1;
 	}
-	eXosip_unlock ();
+	eXosip_unlock (context_eXosip);
 
 	// start timer for delay tests
 	gettimeofday(&start_time, NULL);
@@ -1007,16 +1007,16 @@ void ims_call_answer()
 		return ;
 
 	osip_message_t *answer = NULL;
-	eXosip_lock ();
-	eXosip_call_build_answer (ca->tid, 200, &answer);
-	eXosip_unlock ();
+	eXosip_lock (context_eXosip);
+	eXosip_call_build_answer (context_eXosip, ca->tid, 200, &answer);
+	eXosip_unlock (context_eXosip);
 
 	if ((ca->most_recent_message) && (!ca->media_negotiated))
 		sdp_complete_ims(ca->most_recent_message, &answer, ca, 0);
 
-	eXosip_lock ();
-	eXosip_call_send_answer (ca->tid, 200, answer);
-	eXosip_unlock ();
+	eXosip_lock (context_eXosip);
+	eXosip_call_send_answer (context_eXosip, ca->tid, 200, answer);
+	eXosip_unlock (context_eXosip);
 	set_display("Sending 200 OK");
 
 	state = IN_CALL;
@@ -1047,14 +1047,14 @@ void ims_send_deregister_message ()
 
 	int i;
 	osip_message_t *reg = NULL;
-	eXosip_lock ();
-	i = eXosip_register_build_register (reg_id, 0, &reg);
+	eXosip_lock (context_eXosip);
+	i = eXosip_register_build_register (context_eXosip, reg_id, 0, &reg);
 	if (i < 0)
 	{
-		eXosip_unlock ();
+		eXosip_unlock (context_eXosip);
 		return ;
 	}
-	eXosip_unlock ();
+	eXosip_unlock (context_eXosip);
 
 	char *sip_str = "sip:";
 	char *sip_strs = "sips:";
@@ -1086,9 +1086,9 @@ void ims_send_deregister_message ()
 	if (osip_message_set_authorization(reg, h_value) != 0)
 		return ;
 
-	eXosip_lock ();
-	eXosip_register_send_register (reg_id, reg);
-	eXosip_unlock ();
+	eXosip_lock (context_eXosip);
+	eXosip_register_send_register (context_eXosip, reg_id, reg);
+	eXosip_unlock (context_eXosip);
 
 	imsua_set_message_display ("REGISTER", 1);
 	
@@ -1132,9 +1132,9 @@ void ims_call_reinvite()
 	/*
 	if(strcmp(media_interface, "Default") == 0)
 	{
-		eXosip_lock ();
-		eXosip_guess_localip (AF_INET, local_ip, 128);
-		eXosip_unlock ();
+		eXosip_lock (context_eXosip);
+		eXosip_guess_localip (context_eXosip, AF_INET, local_ip, 128);
+		eXosip_unlock (context_eXosip);
 	}
 	else 
 	{
@@ -1228,9 +1228,9 @@ void ims_call_reinvite()
 	sdp_complete_ims(NULL, &reinvite, NULL, 0);
 
 	// send the reinvite
-	eXosip_lock ();
-	int i = eXosip_call_send_request (ca->did, reinvite );
- 	eXosip_unlock ();
+	eXosip_lock (context_eXosip);
+	int i = eXosip_call_send_request (context_eXosip, ca->did, reinvite );
+ 	eXosip_unlock (context_eXosip);
 
 	// start timer for delay tests
 	gettimeofday(&start_time, NULL);

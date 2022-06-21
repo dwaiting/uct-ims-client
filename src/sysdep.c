@@ -7,7 +7,7 @@
    This sample implementation generates a random node ID. */
 void get_ieee_node_identifier(uuid_node_t *node)
 {
-    static inited = 0;
+    static int inited = 0;
     static uuid_node_t saved_node;
     char seed[16];
     FILE *fp;

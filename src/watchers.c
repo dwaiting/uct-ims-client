@@ -43,9 +43,9 @@ gint watchers_subscribe_to_watcherinfo(int expires)
 
 		imsua_add_service_routes(&subscribe);
 
-		eXosip_lock();
-		int i = eXosip_subscribe_send_initial_request(subscribe);
-		eXosip_unlock();	
+		eXosip_lock(context_eXosip);
+		int i = eXosip_subscribe_send_initial_request(context_eXosip, subscribe);
+		eXosip_unlock(context_eXosip);
 	
 		if(i < 0)
 			fprintf(stderr, "UCTIMSCLIENT: Error sending subscribe to presence.winfo\n");
@@ -54,14 +54,14 @@ gint watchers_subscribe_to_watcherinfo(int expires)
 	{
 		printf("Refreshing subscription to winfo.\n");
 
-		eXosip_lock();
-		if(eXosip_subscribe_build_refresh_request(winfo_subscription_did, &refresh) < 0)
+		eXosip_lock(context_eXosip);
+		if(eXosip_subscribe_build_refresh_request(context_eXosip, winfo_subscription_did, &refresh) < 0)
 		{
 			fprintf(stderr, "Error building presence.winfo subscribe refresh request.\n");
-			eXosip_unlock();
+			eXosip_unlock(context_eXosip);
 			return 1;
 		}
-		eXosip_unlock();
+		eXosip_unlock(context_eXosip);
 
 		osip_message_set_header(refresh, "Event", "presence.winfo");
 
@@ -69,14 +69,14 @@ gint watchers_subscribe_to_watcherinfo(int expires)
 		sprintf(expire_str, "%d", PRESENCE_EXPIRE); 
 		osip_message_set_expires(refresh, expire_str);
 
-		eXosip_lock();
-		if(eXosip_subscribe_send_refresh_request(winfo_subscription_did, refresh) < 0)
+		eXosip_lock(context_eXosip);
+		if(eXosip_subscribe_send_refresh_request(context_eXosip, winfo_subscription_did, refresh) < 0)
 		{
 			fprintf(stderr, "Error sending presence.winfo subscribe refresh request.\n");
 			eXosip_unlock();
 			return 1;
 		}
-		eXosip_unlock();
+		eXosip_unlock(context_eXosip);
 	}
 	
 
@@ -122,7 +122,7 @@ void watchers_process_notify(eXosip_event_t *je)
 
 	char *notify_str, *entity;
 	osip_body_t *notify_body;
-	int notify_len;
+	size_t notify_len;
 	xmlChar *txt;
    	xmlDocPtr doc;
 	xmlNodePtr cur;

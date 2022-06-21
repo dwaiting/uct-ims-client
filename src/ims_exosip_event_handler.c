@@ -124,9 +124,9 @@ void ims_process_401(eXosip_event_t *je)
 	else
 		expires = REG_EXPIRE;
 
-	eXosip_lock ();
-	int r = eXosip_register_build_register(reg_id, expires, &reg2);
-	eXosip_unlock ();
+	eXosip_lock (context_eXosip);
+	int r = eXosip_register_build_register(context_eXosip, reg_id, expires, &reg2);
+	eXosip_unlock (context_eXosip);
 
 	if (r < 0)
 		return ;
@@ -138,7 +138,7 @@ void ims_process_401(eXosip_event_t *je)
 	/* Convert our expire value to a string */
 	sprintf(reg_expire_str, "%d", REG_EXPIRE);
 
-	if (!strcmp(expires_header->hvalue, "3600") && (expires == REG_EXPIRE))
+	if (!strcmp(expires_header->hvalue, "36,00") && (expires == REG_EXPIRE))
 		osip_header_set_value(expires_header, osip_strdup(reg_expire_str));
 
 	osip_authorization_t *auth_header;
@@ -159,9 +159,9 @@ void ims_process_401(eXosip_event_t *je)
 	if (osip_message_set_authorization(reg2, h_value) != 0)
 		printf("Can't set authorisation\n");
 
-	eXosip_lock();
-	i = eXosip_register_send_register (reg_id, reg2);
-	eXosip_unlock();
+	eXosip_lock(context_eXosip);
+	i = eXosip_register_send_register (context_eXosip, reg_id, reg2);
+	eXosip_unlock(context_eXosip);
 
 	if (is_message_deregister)
 		reg_id = -1;
@@ -243,9 +243,9 @@ void ims_process_registration_200ok(eXosip_event_t *je)
 	{
 		osip_message_t *subscribe;
 
-		eXosip_lock();
-		i = eXosip_subscribe_build_initial_request(&subscribe, pref->impu, pref->impu, add_lr_to_route(add_sip_scheme(pref->pcscf)), "reg", 600000);
-		eXosip_unlock();
+		eXosip_lock(context_eXosip);
+		i = eXosip_subscribe_build_initial_request(context_eXosip, &subscribe, pref->impu, pref->impu, add_lr_to_route(add_sip_scheme(pref->pcscf)), "reg", 600000);
+		eXosip_unlock(context_eXosip);
 
 		if(i != 0)
 		{
@@ -260,9 +260,9 @@ void ims_process_registration_200ok(eXosip_event_t *je)
 			osip_message_set_route(subscribe, ims_service_route[j-1]);
 		}
 
-		eXosip_lock();		
-		i = eXosip_subscribe_send_initial_request(subscribe);
-		eXosip_unlock();
+		eXosip_lock(context_eXosip);
+		i = eXosip_subscribe_send_initial_request(context_eXosip, subscribe);
+		eXosip_unlock(context_eXosip);
 
 		if (i < 0)
 			set_display("Error subscribing to reg event");
@@ -347,9 +347,9 @@ void ims_process_incoming_invite(eXosip_event_t *je)
 	// Send "Busy Here" if we are in a call already and return
 	if (state != IDLE)
 	{
-		eXosip_lock();
-		eXosip_call_send_answer(je->tid, 486, NULL);
-		eXosip_unlock();
+		eXosip_lock(context_eXosip);
+		eXosip_call_send_answer(context_eXosip, je->tid, 486, NULL);
+		eXosip_unlock(context_eXosip);
 		return ;
 	}
 
@@ -410,17 +410,17 @@ void ims_process_incoming_invite(eXosip_event_t *je)
 	{
 		osip_message_t *answer;
 
-		eXosip_lock ();
-		eXosip_call_build_answer (ca->tid, 200, &answer);
-		eXosip_unlock ();
+		eXosip_lock (context_eXosip);
+		eXosip_call_build_answer (context_eXosip, ca->tid, 200, &answer);
+		eXosip_unlock (context_eXosip);
 		
 		sdp_complete_ims(je->request, &answer, ca, 0);
 
 		osip_message_set_allow(answer, "INVITE, ACK, CANCEL, BYE, PRACK, UPDATE, REFER, MESSAGE");
 
-		eXosip_lock ();
-		eXosip_call_send_answer (je->tid, 200, answer);
-		eXosip_unlock ();
+		eXosip_lock (context_eXosip);
+		eXosip_call_send_answer (context_eXosip, je->tid, 200, answer);
+		eXosip_unlock (context_eXosip);
 
 		imsua_set_message_display("200 OK (INVITE)", 1);
 		
@@ -433,9 +433,9 @@ void ims_process_incoming_invite(eXosip_event_t *je)
 		set_display(display);
 		osip_message_t *ringing;
 
-		eXosip_lock ();
-		eXosip_call_build_answer(je->tid, 180, &ringing);
-		eXosip_unlock ();
+		eXosip_lock (context_eXosip);
+		eXosip_call_build_answer(context_eXosip, je->tid, 180, &ringing);
+		eXosip_unlock (context_eXosip);
 
 		sdp_complete_ims(je->request, &ringing, ca, 0);
 
@@ -450,9 +450,9 @@ void ims_process_incoming_invite(eXosip_event_t *je)
 
 		osip_message_set_allow(ringing, "INVITE, ACK, CANCEL, BYE, PRACK, UPDATE, REFER, MESSAGE");
 
-		eXosip_lock ();
-		eXosip_call_send_answer (je->tid, 180, ringing);
-		eXosip_unlock ();
+		eXosip_lock (context_eXosip);
+		eXosip_call_send_answer (context_eXosip, je->tid, 180, ringing);
+		eXosip_unlock (context_eXosip);
 
 		state = LOCAL_RINGING;
 
@@ -467,9 +467,9 @@ void ims_process_incoming_invite(eXosip_event_t *je)
 
 		osip_message_t *session_progress;
 
-		eXosip_lock ();
-		eXosip_call_build_answer(je->tid, 183, &session_progress);
-		eXosip_unlock ();
+		eXosip_lock (context_eXosip);
+		eXosip_call_build_answer(context_eXosip, je->tid, 183, &session_progress);
+		eXosip_unlock (context_eXosip);
 
 		sdp_complete_ims(je->request, &session_progress, ca, 0);
 
@@ -484,9 +484,9 @@ void ims_process_incoming_invite(eXosip_event_t *je)
 
 		osip_message_set_allow(session_progress, "INVITE, ACK, CANCEL, BYE, PRACK, UPDATE, REFER, MESSAGE");
 
-		eXosip_lock ();
-		eXosip_call_send_answer(je->tid, 183, session_progress);
-		eXosip_unlock ();
+		eXosip_lock (context_eXosip);
+		eXosip_call_send_answer(context_eXosip, je->tid, 183, session_progress);
+		eXosip_unlock (context_eXosip);
 
 		state = IDLE;
 
@@ -554,9 +554,9 @@ void ims_process_18x(eXosip_event_t *je)
 	{
 		osip_message_t *prack;
 
-		eXosip_lock ();
-		eXosip_call_build_prack(je->tid, &prack);
-		eXosip_unlock ();
+		eXosip_lock (context_eXosip);
+		eXosip_call_build_prack(context_eXosip, je->tid, &prack);
+		eXosip_unlock (context_eXosip);
 
 		sdp_complete_ims(je->response, &prack, ca, 0);
 
@@ -570,9 +570,9 @@ void ims_process_18x(eXosip_event_t *je)
 	    	// Protocol (SIP) for the 3rd-Generation Partnership Project (3GPP)
 		osip_message_set_header((osip_message_t *)prack,(const char *)"P-Access-Network-Info",access_networks[pref->access_network]);
 
-		eXosip_lock ();
-		eXosip_call_send_prack (je->tid, prack);
-		eXosip_unlock ();
+		eXosip_lock (context_eXosip);
+		eXosip_call_send_prack (context_eXosip, je->tid, prack);
+		eXosip_unlock (context_eXosip);
 
 		imsua_set_message_display("PRACK", 1);
 	}
@@ -623,9 +623,9 @@ void ims_process_prack(eXosip_event_t *je)
 
 	osip_message_t *answer_200ok;
 
-	eXosip_lock ();
-	eXosip_call_build_answer(je->tid, 200, &answer_200ok);  	
-	eXosip_unlock ();
+	eXosip_lock (context_eXosip);
+	eXosip_call_build_answer(context_eXosip, je->tid, 200, &answer_200ok);  	
+	eXosip_unlock (context_eXosip);
 	
 	if (!ca->media_negotiated)
 		sdp_complete_ims(je->request, &answer_200ok, ca, 0);
@@ -633,9 +633,9 @@ void ims_process_prack(eXosip_event_t *je)
 	osip_message_set_require(answer_200ok, "sec-agree");
 	osip_message_set_proxy_require(answer_200ok, "sec-agree");
 
-	eXosip_lock ();
-	eXosip_call_send_answer(je->tid, 200, answer_200ok);
-	eXosip_unlock ();
+	eXosip_lock (context_eXosip);
+	eXosip_call_send_answer(context_eXosip, je->tid, 200, answer_200ok);
+	eXosip_unlock (context_eXosip);
 	imsua_set_message_display("200 OK (PRACK)", 1);
 
 
@@ -646,17 +646,17 @@ void ims_process_prack(eXosip_event_t *je)
 
 		osip_message_t *ringing;
 
-		eXosip_lock ();
-		eXosip_call_build_answer(ca->tid, 180, &ringing);
-		eXosip_unlock ();
+		eXosip_lock (context_eXosip);
+		eXosip_call_build_answer(context_eXosip, ca->tid, 180, &ringing);
+		eXosip_unlock (context_eXosip);
 
 		// support for RFC 3262
 		osip_message_set_require(ringing, "100rel");
 		osip_message_set_header((osip_message_t *)ringing,(const char *)"RSeq","2");
 
-		eXosip_lock ();
-		eXosip_call_send_answer(ca->tid, 180, ringing);
-		eXosip_unlock ();
+		eXosip_lock (context_eXosip);
+		eXosip_call_send_answer(context_eXosip, ca->tid, 180, ringing);
+		eXosip_unlock (context_eXosip);
 
 		state = LOCAL_RINGING;
 		
@@ -694,9 +694,9 @@ void ims_process_update(eXosip_event_t *je)
 
 	osip_message_t *answer_200ok;
 
-	eXosip_lock ();
-	eXosip_call_build_answer(je->tid, 200, &answer_200ok);  	
-	eXosip_unlock ();
+	eXosip_lock (context_eXosip);
+	eXosip_call_build_answer(context_eXosip, je->tid, 200, &answer_200ok);  	
+	eXosip_unlock (context_eXosip);
 	
 	sdp_complete_ims(je->request, &answer_200ok, ca, 0);
 	
@@ -704,9 +704,9 @@ void ims_process_update(eXosip_event_t *je)
 	osip_message_set_proxy_require(answer_200ok, "sec-agree");
 
 	osip_message_t *ringing;
-	eXosip_lock ();
-	eXosip_call_build_answer(ca->tid, 180, &ringing);
-	eXosip_unlock ();
+	eXosip_lock (context_eXosip);
+	eXosip_call_build_answer(context_eXosip, ca->tid, 180, &ringing);
+	eXosip_unlock (context_eXosip);
 
 	// support for RFC 3262
 	osip_message_set_require(ringing, "100rel");
@@ -714,18 +714,18 @@ void ims_process_update(eXosip_event_t *je)
 
 	// sdp_complete_ims(je->request, &ringing, ca, 0);
 
-	eXosip_lock ();
-	eXosip_call_send_answer(je->tid, 200, answer_200ok);
-	eXosip_unlock ();
+	eXosip_lock (context_eXosip);
+	eXosip_call_send_answer(context_eXosip, je->tid, 200, answer_200ok);
+	eXosip_unlock (context_eXosip);
 	imsua_set_message_display("200 OK (UPDATE)", 1);
 
 
 	// if we have confirmation of remote client QoS we can start ringing
 	if (ca->qos_remote_state == SENDRECV && state == IDLE)
 	{
-		eXosip_lock ();
-		eXosip_call_send_answer(ca->tid, 180, ringing);
-		eXosip_unlock ();
+		eXosip_lock (context_eXosip);
+		eXosip_call_send_answer(context_eXosip, ca->tid, 180, ringing);
+		eXosip_unlock (context_eXosip);
 
 		state = LOCAL_RINGING;
 		
@@ -760,15 +760,15 @@ void ims_process_2xx(eXosip_event_t *je)
 
 		osip_message_t *update;
 
-		eXosip_lock();
-		eXosip_call_build_update(ca->did, &update);
-		eXosip_unlock();
+		eXosip_lock(context_eXosip);
+		eXosip_call_build_update(context_eXosip, ca->did, &update);
+		eXosip_unlock(context_eXosip);
 		
 		sdp_complete_ims(ca->prov_resp, &update, ca, 0);
 
-		eXosip_lock();
-		eXosip_call_send_request(ca->did, update);
-		eXosip_unlock();
+		eXosip_lock(context_eXosip);
+		eXosip_call_send_request(context_eXosip,ca->did, update);
+		eXosip_unlock(context_eXosip);
 
 		ca->sent_update = 1;
 
@@ -869,16 +869,16 @@ void ims_process_200ok(eXosip_event_t *je)
 	ca->sent_update = 0;
 	ca->caller = 1;
 
-	eXosip_lock();
-	eXosip_call_build_ack(je->did, &ack);
-	eXosip_unlock();
+	eXosip_lock(context_eXosip);
+	eXosip_call_build_ack(context_eXosip, je->did, &ack);
+	eXosip_unlock(context_eXosip);
 
 	if (!ca->media_negotiated)
 		sdp_complete_ims(je->response, &ack, ca, 0);
 
-	eXosip_lock();
-	eXosip_call_send_ack(je->did, ack);
-	eXosip_unlock();
+	eXosip_lock(context_eXosip);
+	eXosip_call_send_ack(context_eXosip, je->did, ack);
+	eXosip_unlock(context_eXosip);
 	
 	set_display(display);
 	imsua_set_message_display("ACK", 1);
@@ -993,7 +993,7 @@ void ims_process_released_call(eXosip_event_t *je)
 
 		destroyBackgroundVideoPipeline();
 
-		destroyIptvVideoPipeline();
+		destroyIptvVideoPipeline(ca);
 
 		if (ca->im_supported)
 		{
@@ -1327,9 +1327,9 @@ void ims_process_message(eXosip_event_t *je, char *msrp_message)
 	osip_uri_to_str(uri, &from_uri);
 
 	// send 200OK in response to message received
-	eXosip_lock ();
-	eXosip_message_send_answer (je->tid, 200, NULL);
-	eXosip_unlock ();
+	eXosip_lock (context_eXosip);
+	eXosip_message_send_answer (context_eXosip, je->tid, 200, NULL);
+	eXosip_unlock (context_eXosip);
 
 
 	// writes the text to the IM output screen
@@ -1608,9 +1608,9 @@ void ims_start_im_session(eXosip_event_t *je, char *message)
 		is_writing = lookup_widget(GTK_WIDGET(im_window), "is_writing");
 		
 		// send 200OK in response to message received
-		eXosip_lock ();
-		eXosip_message_send_answer (je->tid, 200, NULL);
-		eXosip_unlock ();
+		eXosip_lock (context_eXosip);
+		eXosip_message_send_answer (context_eXosip, je->tid, 200, NULL);
+		eXosip_unlock (context_eXosip);
 
 	}
 	
@@ -1781,7 +1781,7 @@ void ims_process_notify(eXosip_event_t *je)
 		osip_message_get_body(je->request, 0, &notify_body);
 
 		char *notify_str = NULL;
-		int reg_len;
+		size_t reg_len;
 
 		osip_body_to_str(notify_body, &notify_str, &reg_len);
 
@@ -1848,15 +1848,15 @@ void ims_process_incoming_reinvite (eXosip_event_t *je)
 	// Send 200 OK with local SDP parameters
 	osip_message_t *answer_200ok;
 
-	eXosip_lock ();
-	eXosip_call_build_answer(je->tid, 200, &answer_200ok);
-	eXosip_unlock ();
+	eXosip_lock (context_eXosip);
+	eXosip_call_build_answer(context_eXosip, je->tid, 200, &answer_200ok);
+	eXosip_unlock (context_eXosip);
 	
 	sdp_complete_ims(je->request, &answer_200ok, ca, 0);
 
-	eXosip_lock ();
-	eXosip_call_send_answer(je->tid, 200, answer_200ok);
-	eXosip_unlock ();
+	eXosip_lock (context_eXosip);
+	eXosip_call_send_answer(context_eXosip, je->tid, 200, answer_200ok);
+	eXosip_unlock (context_eXosip);
 	
 
 }
@@ -1887,7 +1887,7 @@ void ims_process_302 (eXosip_event_t *je)
         uri_entry = (char*)malloc(sizeof(contact));
 
 	sprintf(uri_entry,"%s",contact);
-	char from_string[50];
+	char from_string[200];
 
 	// create from header with name and public UI
 	sprintf(from_string, "\"%s\" <%s>", pref->name, pref->impu);
@@ -1920,7 +1920,7 @@ void ims_process_302 (eXosip_event_t *je)
 		set_display("Invalid Public User Identity\n\nCorrect usage sip:user@address.com");
 		return ;
 	}
-	else if (eXosip_call_build_initial_invite (&invite, uri_entry, from_string, add_lr_to_route(add_sip_scheme(pref->pcscf)), "IMS Call"))
+	else if (eXosip_call_build_initial_invite (context_eXosip, &invite, uri_entry, from_string, add_lr_to_route(add_sip_scheme(pref->pcscf)), "IMS Call"))
 	{
 		set_display("Invalid Destination URI or PCSCF\n\nCheck both start with \"sip:\"");
 		return ;
@@ -1955,9 +1955,9 @@ void ims_process_302 (eXosip_event_t *je)
 	sdp_complete_ims(NULL, &invite, NULL, 0);
 
 	// send the invite
-	eXosip_lock ();
-	int i = eXosip_call_send_initial_invite (invite);
-	eXosip_unlock ();
+	eXosip_lock (context_eXosip);
+	int i = eXosip_call_send_initial_invite (context_eXosip, invite);
+	eXosip_unlock (context_eXosip);
 
 	if (i == 0)
 		set_display("Error sending IMS invite");

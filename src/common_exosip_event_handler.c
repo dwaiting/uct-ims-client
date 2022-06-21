@@ -23,7 +23,7 @@
 #include "includes.h"
 #include "common_exosip_event_handler.h"
 
-#include <gst/controller/gstcontroller.h>
+#include <gst/gstobject.h>
 
 
 GList *call_list = NULL;
@@ -206,7 +206,7 @@ void call_released(eXosip_event_t *je)
 
 		destroyBackgroundVideoPipeline();
 
-		destroyIptvVideoPipeline();
+		destroyIptvVideoPipeline(ca);
 
 		/*destroy rtsp session if exists*/
 //		if(vod_window_open == 1)
@@ -256,8 +256,8 @@ void common_process_info(eXosip_event_t *je)
 
 	/* send 200ok */
 	osip_message_t *answer;
-	eXosip_call_build_answer(je->tid, 200, &answer);
-	eXosip_call_send_answer(je->tid, 200, answer);
+	eXosip_call_build_answer(context_eXosip, je->tid, 200, &answer);
+	eXosip_call_send_answer(context_eXosip, je->tid, 200, answer);
 	
 
 	osip_content_type_t *content_type;
